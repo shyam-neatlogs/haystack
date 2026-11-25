@@ -111,6 +111,19 @@ def test_staticmethod_serialization_deserialization():
     assert fn == TestClass.static_method
 
 
+def test_builtin_method_serialization_deserialization():
+    result = serialize_callable(str.upper)
+    assert result == "builtins.str.upper"
+    assert deserialize_callable(result) is str.upper
+
+
+def test_builtin_bound_and_dunder_methods_serialization_fail():
+    with pytest.raises(SerializationError):
+        serialize_callable("abc".upper)
+    with pytest.raises(SerializationError):
+        serialize_callable(object.__reduce_ex__)
+
+
 def test_deserialization_of_tool_decorated_function():
     # The @tool decorator replaces the module-level sync function with a Tool object;
     # deserialization should return the underlying sync function.

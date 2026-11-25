@@ -217,6 +217,21 @@ class TestTool:
         assert tool.inputs_from_state == {"location": "city"}
         assert tool.outputs_to_state == {"documents": {"source": "docs", "handler": get_weather_report}}
 
+    def test_outputs_to_string_builtin_method_handler_round_trip(self):
+        tool = Tool(
+            name="weather",
+            description="Get weather report",
+            parameters=parameters,
+            function=get_weather_report,
+            outputs_to_string={"source": "report", "handler": str.upper},
+        )
+
+        serialized = tool.to_dict()
+        assert serialized["data"]["outputs_to_string"] == {"source": "report", "handler": "builtins.str.upper"}
+
+        restored_tool = Tool.from_dict(json.loads(json.dumps(serialized)))
+        assert restored_tool.outputs_to_string == {"source": "report", "handler": str.upper}
+
     @pytest.mark.parametrize("output_key", ["source", "handler", "raw_result"])
     def test_outputs_to_string_reserved_output_names_round_trip(self, output_key):
         config = {output_key: {"source": "report", "handler": format_string}, "temp": {"source": "temperature"}}

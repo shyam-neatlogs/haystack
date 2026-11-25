@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Built-in methods such as ``str.upper`` can now be serialized, for example as the ``handler`` of a tool's
+    ``outputs_to_string``, as shown in the ``Tool`` docstrings. Previously, ``to_dict()`` on such a tool, and on any
+    pipeline or ``Agent`` using it, raised ``SerializationError: Serialization of instance methods is not supported.``
