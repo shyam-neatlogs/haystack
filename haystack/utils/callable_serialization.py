@@ -53,8 +53,9 @@ def serialize_callable(callable_handle: Callable) -> str:
 
     # Get the full package path of the function
     module = inspect.getmodule(callable_handle)
-    if module is None and hasattr(callable_handle, "__objclass__"):
-        module = inspect.getmodule(getattr(callable_handle, "__objclass__"))
+    owner = getattr(callable_handle, "__objclass__", None)
+    if module is None and owner is not None:
+        module = inspect.getmodule(owner)
 
     if module is not None:
         full_path = f"{module.__name__}.{name}"
