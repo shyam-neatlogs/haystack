@@ -37,7 +37,10 @@ def serialize_callable(callable_handle: Callable) -> str:
     except TypeError:
         is_instance_method = False
     if is_instance_method:
-        raise SerializationError("Serialization of instance methods is not supported.")
+        name = getattr(callable_handle, "__name__", "")
+        is_dunder = name.startswith("__") and name.endswith("__")
+        if is_dunder or not hasattr(callable_handle, "__objclass__"):
+            raise SerializationError("Serialization of instance methods is not supported.")
 
     # __qualname__ contains the fully qualified path we need for classmethods and staticmethods
     qualname = getattr(callable_handle, "__qualname__", "")
@@ -50,6 +53,9 @@ def serialize_callable(callable_handle: Callable) -> str:
 
     # Get the full package path of the function
     module = inspect.getmodule(callable_handle)
+    if module is None and hasattr(callable_handle, "__objclass__"):
+        module = inspect.getmodule(getattr(callable_handle, "__objclass__"))
+
     if module is not None:
         full_path = f"{module.__name__}.{name}"
     else:
